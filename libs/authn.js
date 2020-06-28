@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const crypto = require('crypto');
 const { Fido2Lib } = require('fido2-lib');
 const { coerceToBase64Url, coerceToArrayBuffer } = require('fido2-lib/lib/utils');
 
@@ -9,8 +8,7 @@ router.use(express.json());
 const f2l = new Fido2Lib({
     timeout: 30*1000*60,
     rpId: process.env.HOSTNAME,
-    //rpId: "f6245f7b1f0d428aa6c28dcf55144007.vfs.cloud9.us-west-2.amazonaws.com",
-    rpName: "WebAuthn Codelab",
+    rpName: "WebAuthn With Cognito",
     challengeSize: 32,
     cryptoParams: [-7]
 });
@@ -20,7 +18,7 @@ const f2l = new Fido2Lib({
  * Respond with required information to call navigator.credential.create()
  * Input is passed via `req.body` with similar format as output
  * Output format:
- * ```{
+ * {
      rp: {
        id: String,
        name: String
@@ -30,7 +28,7 @@ const f2l = new Fido2Lib({
        id: String,
        name: String
      },
-     publicKeyCredParams: [{  // @herrjemand
+     publicKeyCredParams: [{  
        type: 'public-key', alg: -7
      }],
      timeout: Number,
@@ -46,7 +44,7 @@ const f2l = new Fido2Lib({
        userVerification: ('required'|'preferred'|'discouraged')
      },
      attestation: ('none'|'indirect'|'direct')
- * }```
+ * }
  **/
 router.post('/createCredRequest', async (req, res) => {
   f2l.config.rpId = `${req.get('host')}`;
@@ -104,7 +102,7 @@ router.post('/createCredRequest', async (req, res) => {
 /**
  * Register user credential.
  * Input format:
- * ```{
+ * {
      id: String,
      type: 'public-key',
      rawId: String,
@@ -114,7 +112,7 @@ router.post('/createCredRequest', async (req, res) => {
        signature: String,
        userHandle: String
      }
- * }```
+ * }
  **/
 router.post('/parseCredResponse', async (req, res) => {
   f2l.config.rpId = `${req.get('host')}`;

@@ -1,4 +1,5 @@
 // init project
+const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 require('dotenv');
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -35,7 +36,7 @@ app.get('/webauthn', (req, res) => {
 app.use('/authn', authn);
 
 // listen for req :)
-const port = process.env.GLITCH_DEBUGGER ? null : 8080;
+const port = 8080;
 const listener = app.listen(port || process.env.PORT, () => {
   console.log('Your app is listening on port ' + listener.address().port);
 });

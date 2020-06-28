@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      UserPoolName: !Sub ${AWS::StackName}-UserPool
+      LambdaConfig:
+        DefineAuthChallenge: !GetAtt DefineAuthChallenge.Arn
+        CreateAuthChallenge: !GetAtt CreateAuthChallenge.Arn
+        VerifyAuthChallengeResponse: !GetAtt VerifyAuthChallenge.Arn
+      Schema:
+        - AttributeDataType: String
+          Name: publicKeyCred
+          Mutable: true
+          StringAttributeConstraints:
+            MaxLength: 1024
+        
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: my-app
+      GenerateSecret: false
+      UserPoolId: !Ref UserPool
+      ExplicitAuthFlows:
+        - ALLOW_CUSTOM_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      WriteAttributes:
+        - custom:publicKeyCred
+        - email
+        - name
+      ReadAttributes:
+        - email
+        - name
+        
+  DefineAuthChallenge:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-DefineAuthChallenge
+      CodeUri: s3://webauthn-with-amazon-cognito/DefineAuthChallenge
+      Handler: index.handler
+      Runtime: nodejs12.x
+      MemorySize: 1024
+      Timeout: 30
+      Tracing: Active
+      
+  CreateAuthChallenge:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-CreateAuthChallenge
+      CodeUri: s3://webauthn-with-amazon-cognito/CreateAuthChallenge
+      Handler: index.handler
+      Runtime: nodejs12.x
+      MemorySize: 1024
+      Timeout: 30
+      Tracing: Active
+      
+  VerifyAuthChallenge:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-VerifyAuthChallenge
+      CodeUri: s3://webauthn-with-amazon-cognito/VerifyAuthChallenge
+      Handler: index.handler
+      Runtime: nodejs12.x
+      MemorySize: 1024
+      Timeout: 30
+      Tracing: Active
+        
+Outputs :
+  UserPoolId:
+    Value: !Ref 'UserPool'
+  AppClientID:
+    Value: !Ref 'UserPoolClient'
+
+
