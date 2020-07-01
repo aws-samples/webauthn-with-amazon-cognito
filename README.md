@@ -5,7 +5,8 @@ This project is a demonestration of how to implement FIDO-based authentication w
 # Requirements
 - AWS account and permissions to create CloudFromation stacks, Cognito resources and lambda functions
 - Nodejs and NPM
-- Browser/Device that supports FIDO2. Refer to [FIDO Alliance]
+- Browser that supports FIDO2. Refer to [FIDO Alliance]
+- FIDO2 security key (or device with platform authenticator that supports FIDO2)
 
 # Deployment steps
 Clone the project
