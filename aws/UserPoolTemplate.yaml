@@ -7,6 +7,8 @@ Resources:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: false
       UserPoolName: !Sub ${AWS::StackName}-UserPool
+      AutoVerifiedAttributes:
+        - email
       LambdaConfig:
         DefineAuthChallenge: !GetAtt DefineAuthChallenge.Arn
         CreateAuthChallenge: !GetAtt CreateAuthChallenge.Arn
@@ -27,6 +29,7 @@ Resources:
       ExplicitAuthFlows:
         - ALLOW_CUSTOM_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_SRP_AUTH
       WriteAttributes:
         - custom:publicKeyCred
         - email
@@ -45,6 +48,13 @@ Resources:
       MemorySize: 1024
       Timeout: 30
       Tracing: Active
+  DefineAuthChallengePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt DefineAuthChallenge.Arn
+      Principal: cognito-idp.amazonaws.com
+      Action: lambda:InvokeFunction
+      SourceArn: !GetAtt UserPool.Arn
       
   CreateAuthChallenge:
     Type: AWS::Serverless::Function
@@ -56,6 +66,13 @@ Resources:
       MemorySize: 1024
       Timeout: 30
       Tracing: Active
+  CreateAuthChallengePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt CreateAuthChallenge.Arn
+      Principal: cognito-idp.amazonaws.com
+      Action: lambda:InvokeFunction
+      SourceArn: !GetAtt UserPool.Arn
       
   VerifyAuthChallenge:
     Type: AWS::Serverless::Function
@@ -67,6 +84,13 @@ Resources:
       MemorySize: 1024
       Timeout: 30
       Tracing: Active
+  VerifyAuthChallengePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt VerifyAuthChallenge.Arn
+      Principal: cognito-idp.amazonaws.com
+      Action: lambda:InvokeFunction
+      SourceArn: !GetAtt UserPool.Arn
         
 Outputs :
   UserPoolId:

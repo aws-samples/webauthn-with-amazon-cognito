@@ -1,6 +1,6 @@
 # WebAuthn with Amazon Cognito
 
-This project is a demonestration of how to implement FIDO-based authentication with Amazon Cognito user pools. The full technical write-up on this topic is available in this [blog post].
+This project is a demonestration of how to implement FIDO-based authentication with Amazon Cognito user pools. The technical write-up for this demo project is available in this [blog post].
 
 # Requirements
 - AWS account and permissions to create CloudFromation stacks, Cognito resources and lambda functions
@@ -19,7 +19,7 @@ $ aws cloudformation create-stack --stack-name webauthn-cognito --template-body 
 ```
 Login to your AWS account and wait for the stack to be created successfully. Note the user-pool ID and app-client ID from the outputs section of your stack.
 
-Edit the file views/webauthn.html to use the new user-pool that you just created.
+Edit the file public/webauthn-client.js to use the new user-pool that you just created.
 ```javascript
   var poolData = {
     UserPoolId: 'user_pool_id',
