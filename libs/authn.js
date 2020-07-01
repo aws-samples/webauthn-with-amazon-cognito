@@ -16,8 +16,7 @@ const f2l = new Fido2Lib({
 
 /**
  * Respond with required information to call navigator.credential.create()
- * Input is passed via `req.body` with similar format as output
- * Output format:
+ * Response format:
  * {
      rp: {
        id: String,
@@ -139,12 +138,16 @@ router.post('/parseCredResponse', async (req, res) => {
     };
 
     const regResult = await f2l.attestationResult(clientAttestationResponse, attestationExpectations);
+    
+    //console.log(JSON.stringify(regResult));
+    //console.log(regResult.authnrData.get("flags"));
 
     const credential = {
       credId: coerceToBase64Url(regResult.authnrData.get("credId"), 'credId'),
       publicKey: regResult.authnrData.get("credentialPublicKeyPem"),
       aaguid: coerceToBase64Url(regResult.authnrData.get("aaguid"), 'aaguid'),
-      prevCounter: regResult.authnrData.get("counter")
+      prevCounter: regResult.authnrData.get("counter"),
+      flags: regResult.authnrData.get("flags")
     };
 
     // Respond with user info
