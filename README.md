@@ -34,7 +34,8 @@ $ npm install
 $ node server.js
 ```
 
-You can deploy and run this application in few minutes on AWS Cloud9. Here is a quick demo.
+Here is a quick demo of deploying and running this project in a fresh Cloud9 environment.
+
 [![Watch the demo](https://webauthn-with-amazon-cognito.s3-us-west-2.amazonaws.com/WebAuthn.gif)](https://webauthn-with-amazon-cognito.s3-us-west-2.amazonaws.com/WebAuthn.mp4)
 
    [FIDO Alliance]: <https://fidoalliance.org/fido2/fido2-web-authentication-webauthn/>
