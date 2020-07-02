@@ -35,9 +35,8 @@ $ node server.js
 ```
 
 You can deploy and run this application in few minutes on AWS Cloud9. Here is a quick demo.
-[![Watch the demo](https://webauthn-with-amazon-cognito.s3-us-west-2.amazonaws.com/WebAuthn.gif)](https://webauthn-with-amazon-cognito.s3-us-west-2.amazonaws.com/WebAuthn.mp4)
+[![Watch the demo](https://webauthn-with-amazon-cognito.s3-us-west-2.amazonaws.com/WebAuthn-720.gif)](https://webauthn-with-amazon-cognito.s3-us-west-2.amazonaws.com/WebAuthn.mp4)
 
-![](https://webauthn-with-amazon-cognito.s3-us-west-2.amazonaws.com/WebAuthn.gif)
 
    [FIDO Alliance]: <https://fidoalliance.org/fido2/fido2-web-authentication-webauthn/>
    [blog post]: <https://aws.amazon.com/blogs/security/>
