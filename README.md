@@ -10,7 +10,7 @@ This project is a demonestration of how to implement FIDO-based authentication w
 # Deployment steps
 Clone the project
 ```sh
-$ git clone https://github.com/mmatouk/webauthn-with-amazon-cognito.git
+$ git clone https://github.com/aws-samples/webauthn-with-amazon-cognito.git
 $ cd webauthn-with-amazon-cognito
 ```
 Create Cognito resaources and lambda triggers
