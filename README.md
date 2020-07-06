@@ -139,7 +139,6 @@ Verify Auth Challenge
 var crypto = require("crypto");
 
 exports.handler = async (event) => {
-    console.log(event);
    
    //--------get private challenge data
     const challenge = event.request.privateChallengeParameters.challenge;
@@ -186,31 +185,6 @@ async function validateAssertionSignature(publicKeyCredJSON, challengeAnswerJSON
     } catch (e) {console.error(e);}
 
     return res;
-}
-
-function toArrayBuffer(buf, name) {
-    if (!name) {
-        throw new TypeError("name not specified");
-    }
-
-    if (typeof buf === "string") {
-        buf = buf.replace(/-/g, "+").replace(/_/g, "/");
-        buf = Buffer.from(buf, "base64");
-    }
-
-    if (buf instanceof Buffer || Array.isArray(buf)) {
-        buf = new Uint8Array(buf);
-    }
-
-    if (buf instanceof Uint8Array) {
-        buf = buf.buffer;
-    }
-
-    if (!(buf instanceof ArrayBuffer)) {
-        throw new TypeError(`could not convert '${name}' to ArrayBuffer`);
-    }
-
-    return buf;
 }
 
 ```
