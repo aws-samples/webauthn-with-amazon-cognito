@@ -2,18 +2,18 @@
 
 This project is a demonestration of how to implement FIDO-based authentication with Amazon Cognito user pools. The full technical write-up on this topic is available in this [blog post].
 
-# Requirements
+## Requirements
 - AWS account and permissions to create CloudFromation stacks, Cognito resources and lambda functions
 - Nodejs and NPM
 - Browser/Device that supports FIDO2. Refer to [FIDO Alliance]
 
-# Deployment steps
-Clone the project
+## Deployment steps
+###### Clone the project
 ```sh
 $ git clone https://github.com/aws-samples/webauthn-with-amazon-cognito.git
 $ cd webauthn-with-amazon-cognito
 ```
-Create Cognito resaources and lambda triggers
+###### Create Cognito resaources and lambda triggers
 ```sh
 $ aws cloudformation create-stack --stack-name webauthn-cognito --template-body file://aws/UserPoolTemplate.yaml --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM
 ```
@@ -28,11 +28,14 @@ Edit the file views/webauthn.html to use the new user-pool that you just created
     ClientId: 'app_client_id'
   };
 ```
-Install and run the application
+###### Install and run the application
 ```sh
 $ npm install
 $ node server.js
 ```
+###### Note
+WebAuthn APIs will be exposed by the user-agent only if secure transport is established without errors. This means you have to access the demo application vial HTTPS.
+In the demo recording below, I used AWS Cloud9 which gives you a quick way to deploy and test the app. if you deploy this app on your own workstation or on a separate VM, you need to configure SSL.
 
 Here is a quick demo of deploying and running this project in a fresh Cloud9 environment.
 
@@ -41,10 +44,10 @@ Here is a quick demo of deploying and running this project in a fresh Cloud9 env
    [FIDO Alliance]: <https://fidoalliance.org/fido2/fido2-web-authentication-webauthn/>
    [blog post]: <https://aws.amazon.com/blogs/security/>
    
-# Lambda triggers
+## Lambda triggers
 The cloudformation template provided in this repo will deploy three lambda triggers to implement custom authentication flow.
 
-Define Auth Challenge
+###### Define Auth Challenge
 
 ```javascript
 /**
@@ -110,7 +113,7 @@ exports.handler = (event, context, callback) => {
 
 ```
 
-Create Auth Challenge
+###### Create Auth Challenge
 
 ```javascript
 const crypto = require("crypto");
@@ -133,7 +136,7 @@ exports.handler = async (event) => {
 
 ```
 
-Verify Auth Challenge
+###### Verify Auth Challenge
 
 ```javascript
 var crypto = require("crypto");
