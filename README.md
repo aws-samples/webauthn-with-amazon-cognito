@@ -179,7 +179,7 @@ async function validateAssertionSignature(publicKeyCredJSON, challengeAnswerJSON
     verify.write(Buffer.from(new Uint8Array(clientDataHash)));
     verify.end();
     
-    var res = null;
+    var res = false;
     try {
         res = verify.verify(publicKey, Buffer.from(new Uint8Array(expectedSignature)));
     } catch (e) {console.error(e);}
