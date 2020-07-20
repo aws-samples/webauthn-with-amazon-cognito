@@ -1,9 +1,9 @@
 # WebAuthn with Amazon Cognito
 
-This project is a demonestration of how to implement FIDO-based authentication with Amazon Cognito user pools. The full technical write-up on this topic is available in this [blog post].
+This project is a demonstration of how to implement FIDO-based authentication with Amazon Cognito user pools. The full technical write-up on this topic is available in this [blog post].
 
 ## Requirements
-- AWS account and permissions to create CloudFromation stacks, Cognito resources and lambda functions
+- AWS account and permissions to create CloudFormation stacks, Cognito resources and lambda functions
 - Nodejs and NPM
 - Browser/Device that supports FIDO2. Refer to [FIDO Alliance]
 
@@ -34,7 +34,7 @@ $ npm install
 $ node server.js
 ```
 ###### Note
-WebAuthn APIs will be exposed by the user-agent only if secure transport is established without errors. This means you have to access the demo application vial HTTPS.
+WebAuthn APIs will be exposed by the user-agent only if secure transport is established without errors. This means you have to access the demo application via HTTPS.
 In the demo recording below, I used AWS Cloud9 which gives you a quick way to deploy and test the app. if you deploy this app on your own workstation or on a separate VM, you need to configure SSL.
 
 Here is a quick demo of deploying and running this project in a fresh Cloud9 environment.
@@ -53,10 +53,10 @@ The cloudformation template provided in this repo will deploy three lambda trigg
 /**
  * 1- if user doesn't exist, throw exception
  * 2- if CUSTOM_CHALLENGE answer is correct, authentication successful
- * 3- if PASSWORD_VERIFIER challenge answer is correct, return custom challeneg (3,4 will be appliable if password+fido is selected)
+ * 3- if PASSWORD_VERIFIER challenge answer is correct, return custom challenge (3,4 will be applicable if password+fido is selected)
  * 4- if challenge name is SRP_A, return PASSWORD_VERIFIER challenge (3,4 will be appliable if password+fido is selected)
  * 5- if 5 attempts with no correct answer, fail authentication
- * 6- default is to respond with CUSTOM_CHALLENEG --> password-less authentication
+ * 6- default is to respond with CUSTOM_CHALLENGE --> password-less authentication
  * */
 
 exports.handler = (event, context, callback) => {
@@ -126,7 +126,7 @@ exports.handler = async (event) => {
     const challenge = crypto.randomBytes(64).toString('hex');
     
     event.response.publicChallengeParameters = {
-        credId: JSON.parse(publicKeyCredJSON).id, //credetnial id
+        credId: JSON.parse(publicKeyCredJSON).id, //credential id
         challenge: challenge
     };
     
@@ -151,7 +151,7 @@ exports.handler = async (event) => {
     var publicKeyCred = event.request.userAttributes["custom:publicKeyCred"];
     var publicKeyCredJSON = JSON.parse(Buffer.from(publicKeyCred, 'base64').toString('ascii'));
     
-    //-------get challenge ansower
+    //-------get challenge answer
     const challengeAnswerJSON = JSON.parse(event.request.challengeAnswer);
     
     const verificationResult = await validateAssertionSignature(publicKeyCredJSON, challengeAnswerJSON);

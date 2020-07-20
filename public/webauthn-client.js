@@ -13,24 +13,19 @@
  * permissions and limitations under the License.
  */
   
-  //import { AmazonCognitoIdentity } from 'amazon-cognito-identity-js';
   
-  var globalRegisteredCredentials = "";
-  var globalRegisteredCredentialsJSON = {};
+  let globalRegisteredCredentials = "";
+  let globalRegisteredCredentialsJSON = {};
   
-  var poolData = {
+  let poolData = {
     UserPoolId: 'us-west-2_u9wH1PqeY', // Your user pool id here
     ClientId: '8omcu8gui2s8ugi4uejonqo8c' //Your app client id here
   };
-  var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+  let userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
   
   //create credentials using platform or roaming authenticator
   createCredential = async () => {
     
-    /*
-    const UVPAA = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    console.log("isUserVerifyingPlatformAuthenticatorAvailable:"+UVPAA);
-    */
       try {
         
           //build the credentials options requirements
@@ -85,7 +80,7 @@
   };
 
   //---------------Cognito sign-up
-  function signUp(){
+  signUp = async () =>{
   
       var email = $("#reg-email").val();
       var username = $("#reg-username").val();
@@ -241,35 +236,6 @@
 
   //---------------------Set of helper functions-----------------------//
   //------------------------------------------------------------------//
-  function randomString(length){
-    for(var a = ''; a.length < length;) a += "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"[(Math.random() * 60) | 0]
-    
-    return a;
-  }
-
-  function toArrayBuffer(buf, name) {
-  
-      // Buffer or Array to Uint8Array
-      if (Array.isArray(buf)) {
-          buf = new Uint8Array(buf);
-      }
-  
-      // Uint8Array to ArrayBuffer
-      if (buf instanceof Uint8Array) {
-          buf = buf.buffer;
-      }
-  
-      return buf;
-  }
-
-  //array buffer to string conversion function
-  function arrayBuffToStr(buf) {
-      var str = "";
-      new Uint8Array(buf).forEach((ch) => {
-          str += String.fromCharCode(ch);
-      });
-      return str;
-  }
 
   //tabs UI
   $( function() {

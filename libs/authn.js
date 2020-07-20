@@ -22,7 +22,7 @@ router.use(express.json());
 
 const f2l = new Fido2Lib({
     timeout: 30*1000*60,
-    rpId: process.env.HOSTNAME,
+    //rpId: process.env.HOSTNAME,
     rpName: "WebAuthn With Cognito",
     challengeSize: 32,
     cryptoParams: [-7]
@@ -137,14 +137,7 @@ router.post('/parseCredResponse', async (req, res) => {
     clientAttestationResponse.response.clientDataJSON = coerceToArrayBuffer(req.body.response.clientDataJSON, "clientDataJSON");
     clientAttestationResponse.response.attestationObject = coerceToArrayBuffer(req.body.response.attestationObject, "attestationObject");
     
-    let origin = '';
-    if (req.get('User-Agent').indexOf('okhttp') > -1) {
-      const octArray = process.env.ANDROID_SHA256HASH.split(':').map(h => parseInt(h, 16));
-      const androidHash = coerceToBase64Url(octArray, 'Android Hash');
-      origin = `android:apk-key-hash:${androidHash}`; // TODO: Generate
-    } else {
-      origin = `https://${req.get('host')}`;
-    }
+    let origin = `https://${req.get('host')}`;
 
     const attestationExpectations = {
       challenge: req.body.challenge,
@@ -153,9 +146,6 @@ router.post('/parseCredResponse', async (req, res) => {
     };
 
     const regResult = await f2l.attestationResult(clientAttestationResponse, attestationExpectations);
-    
-    //console.log(JSON.stringify(regResult));
-    //console.log(regResult.authnrData.get("flags"));
 
     const credential = {
       credId: coerceToBase64Url(regResult.authnrData.get("credId"), 'credId'),
@@ -168,7 +158,6 @@ router.post('/parseCredResponse', async (req, res) => {
     // Respond with user info
     res.json(credential);
   } catch (e) {
-    res.clearCookie('challenge');
     res.status(400).send({ error: e.message });
   }
 });
