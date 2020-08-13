@@ -44,10 +44,23 @@ Here is a quick demo of deploying and running this project in a fresh Cloud9 env
    [FIDO Alliance]: <https://fidoalliance.org/fido2/fido2-web-authentication-webauthn/>
    [blog post]: <https://aws.amazon.com/blogs/security/>
    
+## User registration
+Registration starts by calling createCredential function in webauthn-client.js. This function will construct credentials options object and using this object to create credentials with authenticator. After creating credentials, the createCredential will call signUp function to complete the signUp process with Cognito.
+
+## User authentication
+This demo application includes multiple scenarios for demonestration and education purposes.
+
+Authentication starts by calling signIn() function in webauthn-client.js. This function will evaluate which sign-in option was chosen; e.g. sign-in with password only (for example for account recovery when device is lost), sign-in with FIDO only (this is the passwordless option) OR sign-in with password + FIDO (this is when using password and using FIDO as second factor).
+
+Based on the selected option, signIn will make a call to authentication the user with Cognito.
+
 ## Lambda triggers
 The cloudformation template provided in this repo will deploy three lambda triggers to implement custom authentication flow.
 
 ###### Define Auth Challenge
+This lamda function is triggered when authentication flow is CUSTOM_AUTH to evaluate the authentication progress and decide what is the next step. For reference, the code of this lambda trigger is under aws/DefineAuthChallenge.js
+
+Define auth challenge will go through the logic below to decide next challenge:
 
 ```javascript
 /**
@@ -58,139 +71,18 @@ The cloudformation template provided in this repo will deploy three lambda trigg
  * 5- if 5 attempts with no correct answer, fail authentication
  * 6- default is to respond with CUSTOM_CHALLENGE --> password-less authentication
  * */
-
-exports.handler = (event, context, callback) => {
-    
-    // If user is not registered
-    if (event.request.userNotFound) {
-        event.response.issueToken = false;
-        event.response.failAuthentication = true;
-        throw new Error("User does not exist");
-    }
-    
-    if (event.request.session &&
-        event.request.session.length &&
-        event.request.session.slice(-1)[0].challengeName === 'CUSTOM_CHALLENGE' &&
-        event.request.session.slice(-1)[0].challengeResult === true) {
-        // The user provided the right answer; succeed auth
-        event.response.issueTokens = true;
-        event.response.failAuthentication = false;
-        
-    }else if (event.request.session &&
-        event.request.session.length &&
-        event.request.session.slice(-1)[0].challengeName === 'PASSWORD_VERIFIER' &&
-        event.request.session.slice(-1)[0].challengeResult === true){
-            
-        event.response.issueTokens = false;
-        event.response.failAuthentication = false;
-        event.response.challengeName = 'CUSTOM_CHALLENGE';
-        
-    }else if (event.request.session &&
-        event.request.session.length &&
-        event.request.session.slice(-1)[0].challengeName === 'SRP_A'){
-            
-        event.response.issueTokens = false;
-        event.response.failAuthentication = false;
-        event.response.challengeName = 'PASSWORD_VERIFIER';
-        
-    }else if(event.request.session.length >= 5 && 
-        event.request.session.slice(-1)[0].challengeResult === false){
-            
-        event.response.issueToken = false;
-        event.response.failAuthentication = true;
-        throw new Error("Invalid credentials");
-    }else{
-        
-        event.response.issueTokens = false;
-        event.response.failAuthentication = false;
-        event.response.challengeName = 'CUSTOM_CHALLENGE';
-        
-    }
-    
-    // Return to Amazon Cognito
-    callback(null, event);
-}
-
 ```
 
 ###### Create Auth Challenge
+This lambda function is triggered when the next step (in define auth challenge) is determined to be CUSTOM_CHALLENGE. For reference, the code of this lambda trigger is under aws/CreateAuthChallenge.js
 
-```javascript
-const crypto = require("crypto");
-
-exports.handler = async (event) => {
-    
-    var publicKeyCred = event.request.userAttributes["custom:publicKeyCred"];
-    var publicKeyCredJSON = Buffer.from(publicKeyCred, 'base64').toString('ascii');
-    
-    const challenge = crypto.randomBytes(64).toString('hex');
-    
-    event.response.publicChallengeParameters = {
-        credId: JSON.parse(publicKeyCredJSON).id, //credential id
-        challenge: challenge
-    };
-    
-    event.response.privateChallengeParameters = { challenge : challenge};
-    return event;
-};
-
-```
+This function will do three things:
+1- extract credential id from user's profile
+2- create random string to be used as a chanllenge
+3- return credential-id and challenge string to client
 
 ###### Verify Auth Challenge
-
-```javascript
-var crypto = require("crypto");
-
-exports.handler = async (event) => {
-   
-   //--------get private challenge data
-    const challenge = event.request.privateChallengeParameters.challenge;
-    const credId = event.request.privateChallengeParameters.credId;
-    
-    //--------publickey information
-    var publicKeyCred = event.request.userAttributes["custom:publicKeyCred"];
-    var publicKeyCredJSON = JSON.parse(Buffer.from(publicKeyCred, 'base64').toString('ascii'));
-    
-    //-------get challenge answer
-    const challengeAnswerJSON = JSON.parse(event.request.challengeAnswer);
-    
-    const verificationResult = await validateAssertionSignature(publicKeyCredJSON, challengeAnswerJSON);
-    console.log("Verification Results:"+verificationResult);
-    
-    if (verificationResult) {
-        event.response.answerCorrect = true;
-    } else {
-        event.response.answerCorrect = false;
-    }
-    return event;
-};
-
-async function validateAssertionSignature(publicKeyCredJSON, challengeAnswerJSON) {
-    
-    var expectedSignature = toArrayBuffer(challengeAnswerJSON.response.signature, "signature");
-    var publicKey = publicKeyCredJSON.publicKey;
-    var rawAuthnrData = toArrayBuffer(challengeAnswerJSON.response.authenticatorData, "authenticatorData");
-    var rawClientData = toArrayBuffer(challengeAnswerJSON.response.clientDataJSON, "clientDataJSON");
-
-    const hash = crypto.createHash("SHA256");
-    hash.update(Buffer.from(new Uint8Array(rawClientData)));
-    var clientDataHashBuf = hash.digest();
-    var clientDataHash = new Uint8Array(clientDataHashBuf).buffer;
-
-    const verify = crypto.createVerify("SHA256");
-    verify.write(Buffer.from(new Uint8Array(rawAuthnrData)));
-    verify.write(Buffer.from(new Uint8Array(clientDataHash)));
-    verify.end();
-    
-    var res = false;
-    try {
-        res = verify.verify(publicKey, Buffer.from(new Uint8Array(expectedSignature)));
-    } catch (e) {console.error(e);}
-
-    return res;
-}
-
-```
+This lambda will be triggered when challenge response is passed on from client to Cognito service. challenge response includes the response generated from authenticator device, this response will be parsed and validated using the stored paublic-key in user's profile. For reference, the code of this lambda trigger is under aws/DefineAuthChallenge.js
 
 ## Security
 
