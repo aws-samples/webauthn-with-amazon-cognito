@@ -182,9 +182,9 @@
       var idToken = result.getIdToken().getJwtToken();
       var refreshToken = result.getRefreshToken().getToken();
       
-      $("#idToken").html('<b>ID Token</b><br>'+JSON.stringify(parseJwt(idToken)));
-      $("#accessToken").html('<b>Access Token</b><br>'+JSON.stringify(parseJwt(accessToken)));
-      $("#refreshToken").html('<b>Refresh Token</b><br>'+refreshToken);
+      $("#idToken").html('<b>ID Token</b><br>'+JSON.stringify(parseJwt(idToken),null, 2));
+      $("#accessToken").html('<b>Access Token</b><br>'+JSON.stringify(parseJwt(accessToken), null, 2));
+      //$("#refreshToken").html('<b>Refresh Token</b><br>'+refreshToken);
 
     },
     customChallenge: async function(challengeParameters) {
