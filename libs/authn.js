@@ -47,7 +47,7 @@ const f2l = new Fido2Lib({
      }],
      timeout: Number,
      challenge: String,
-     excludeCredentials: [{
+     allowCredentials : [{
        id: String,
        type: 'public-key',
        transports: [('ble'|'nfc'|'usb'|'internal'), ...]

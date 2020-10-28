@@ -1,11 +1,11 @@
 # WebAuthn with Amazon Cognito
 
-This project is a demonstration of how to implement FIDO-based authentication with Amazon Cognito user pools. The technical architeture is available in this [blog post].
+This project is a demonstration of how to implement FIDO-based authentication with Amazon Cognito user pools.
 
 ## Requirements
 - AWS account and permissions to create CloudFormation stacks, Cognito resources and lambda functions
 - Nodejs and NPM
-- Browser/Device that supports FIDO2. Refer to [FIDO Alliance]
+- Browser and security key that supports FIDO2. Refer to [FIDO Alliance]
 
 ## Deployment steps
 ###### Clone the project
@@ -21,7 +21,7 @@ Wait for the stack to be created successfully and then get the user-pool-id and 
 ```sh
 $ aws cloudformation describe-stacks --stack-name webauthn-cognito 
 ```
-Edit the file views/webauthn.html to use the new user-pool that you just created.
+Edit the file public/webauthn-client.js to use the new user-pool that you just created.
 ```javascript
   var poolData = {
     UserPoolId: 'user_pool_id',
@@ -34,8 +34,8 @@ $ npm install
 $ node server.js
 ```
 ###### Note
-WebAuthn APIs will be exposed by the user-agent only if secure transport is established without errors. This means you have to access the demo application via HTTPS.
-In the demo recording below, I used AWS Cloud9 which gives you a quick way to deploy and test the app. if you deploy this app on your own workstation or on a separate VM, you need to configure SSL.
+**WebAuthn APIs will be exposed by the user-agent only if secure transport is established without errors. This means you have to access the demo application via HTTPS.
+In the demo recording below, I used AWS Cloud9 which gives you a quick way to deploy and test the app. if you deploy this app on your own workstation or on a separate VM, you need to configure SSL.**
 
 Here is a quick demo of deploying and running this project in a fresh Cloud9 environment.
 
@@ -45,14 +45,50 @@ Here is a quick demo of deploying and running this project in a fresh Cloud9 env
    [blog post]: <https://aws.amazon.com/blogs/security/>
    
 ## User registration
-Registration starts by calling createCredential function in webauthn-client.js. This function will construct credentials options object and using this object to create credentials with authenticator. After creating credentials, the createCredential will call signUp function to complete the signUp process with Cognito.
+Registration starts by calling createCredential function in webauthn-client.js. This function will construct credentials options object and use it to create credentials with an available authenticator. 
+
+Creating credentials will use `navigator.credentials.create` browser API, this API takes credentialOptions object as input and this object contains information about the relying party, the user and some flags to indicate which authenticators are allowed and whether user verification is required or not. In this demo, credentialOptions object is created server side using `createCredRequest` in libs/authn.js
+
+The full structure of credentialOptions object is as below and not all fields are required:
+```javascript
+ {
+     rp: {
+       id: String,
+       name: String
+     },
+     user: {
+       displayName: String,
+       id: String,
+       name: String
+     },
+     publicKeyCredParams: [{  
+       type: 'public-key', alg: -7
+     }],
+     timeout: Number,
+     challenge: String,
+     allowCredentials : [{
+       id: String,
+       type: 'public-key',
+       transports: [('ble'|'nfc'|'usb'|'internal')]
+     }],
+     authenticatorSelection: {
+       authenticatorAttachment: ('platform'|'cross-platform'),
+       requireResidentKey: Boolean,
+       userVerification: ('required'|'preferred'|'discouraged')
+     },
+     attestation: ('none'|'indirect'|'direct')
+ }
+```
+After creating credentials, the createCredential will parse response from authenticator to extract credential-id and public-key then it will call signUp function to start the signUp process with Cognito and will store the public-key and credential-id as custom attribute in cognito.
 
 ## User authentication
 This demo application includes multiple scenarios for demonestration and education purposes.
 
 Authentication starts by calling signIn() function in webauthn-client.js. This function will evaluate which sign-in option was chosen; e.g. sign-in with password only (for example for account recovery when device is lost), sign-in with FIDO only (this is the passwordless option) OR sign-in with password + FIDO (this is when using password and using FIDO as second factor).
 
-Based on the selected option, signIn will make a call to authentication the user with Cognito.
+Based on the selected option, signIn will make a call to authentication the user with Cognito. Authentication flows that utilize FIDO will be sent to Cognito as CUSTOM_AUTH flows, this will trigger Define Auth Challenge and process the authentication with custom challenge.
+
+FIDO challenge will be triggered when client receives a customChallenge response in the authCallBack function, this will use the challenge and credential-id returned in custom challenge to `navigator.credentials.get browser` API which will ask the user to use the authenticator to signId. After successfully activating the authenticator, response is sent to cognito using `cognitoUser.sendCustomChallengeAnswer` API 
 
 ## Lambda triggers
 The cloudformation template provided in this repo will deploy three lambda triggers to implement custom authentication flow.
@@ -65,19 +101,19 @@ Define auth challenge will go through the logic below to decide next challenge:
 ```javascript
 /**
  * 1- if user doesn't exist, throw exception
- * 2- if CUSTOM_CHALLENGE answer is correct, authentication successful
- * 3- if PASSWORD_VERIFIER challenge answer is correct, return custom challenge (3,4 will be applicable if password+fido is selected)
- * 4- if challenge name is SRP_A, return PASSWORD_VERIFIER challenge (3,4 will be appliable if password+fido is selected)
+ * 2- if CUSTOM_CHALLENGE answer is correct, authentication successful (issue-tokens will be set to true)
+ * 3- if PASSWORD_VERIFIER challenge answer is correct, return custom challenge (steps 3,4 will be applicable if password+fido is selected and these steps handle SRP authentication)
+ * 4- if challenge name is SRP_A, return PASSWORD_VERIFIER challenge (steps 3,4 will be appliable if password+fido is selected and these steps handle SRP authentication)
  * 5- if 5 attempts with no correct answer, fail authentication
  * 6- default is to respond with CUSTOM_CHALLENGE --> password-less authentication
  * */
 ```
 
 ###### Create Auth Challenge
-This lambda function is triggered when the next step (in define auth challenge) is determined to be CUSTOM_CHALLENGE. For reference, the code of this lambda trigger is under aws/CreateAuthChallenge.js
+This lambda function is triggered when the next step (set from define auth challenge) is CUSTOM_CHALLENGE. For reference, the code of this lambda trigger is under aws/CreateAuthChallenge.js
 
 This function will do three things:
-1- extract credential id from user's profile
+1- extract credential id from user's profile (this is the credential-id created by authenticator during registration step)
 2- create random string to be used as a chanllenge
 3- return credential-id and challenge string to client
 
