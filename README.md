@@ -88,7 +88,7 @@ Authentication starts by calling `signIn()` function in webauthn-client.js. This
 
 Based on the selected option, `signIn()` will make a call to authentication the user with Cognito. Authentication flows that utilize FIDO will be sent to Cognito as CUSTOM_AUTH flows, this will trigger Define Auth Challenge and process the authentication with custom challenge.
 
-On client-side, FIDO challenge will be triggered when client receives a `customChallenge` response in the `authCallBack` function, this will use the challenge and credential-id returned in custom challenge to call `navigator.credentials.get browser` API which will ask the user to use the authenticator to sign-in. Authenticator will then validate inputs (like relying party, credential-id ...etc. ) and after validation, authenticator response is sent to cognito using `cognitoUser.sendCustomChallengeAnswer` API and will be verified in Verify Auth Challenge lambda trigger.
+On client-side, FIDO challenge will be triggered when client receives a `customChallenge` response in the `authCallBack` function, this will use the challenge and credential-id returned in custom challenge to call `navigator.credentials.get` browser API which will ask the user to use the authenticator to sign-in. Authenticator will then validate inputs (like relying party, credential-id ...etc. ) and after validation, authenticator response is sent to cognito using `cognitoUser.sendCustomChallengeAnswer` API and will be verified in Verify Auth Challenge lambda trigger.
 
 ## Lambda triggers
 The cloudformation template provided in this repo will deploy three lambda triggers to implement custom authentication flow.
