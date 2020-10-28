@@ -84,11 +84,11 @@ After creating credentials, the createCredential will parse response from authen
 ## User authentication
 This demo application includes multiple scenarios for demonestration and education purposes.
 
-Authentication starts by calling signIn() function in webauthn-client.js. This function will evaluate which sign-in option was chosen; e.g. sign-in with password only (for example for account recovery when device is lost), sign-in with FIDO only (this is the passwordless option) OR sign-in with password + FIDO (this is when using password and using FIDO as second factor).
+Authentication starts by calling `signIn()` function in webauthn-client.js. This function will evaluate which sign-in option was chosen; e.g. sign-in with password only (for example for account recovery when device is lost), sign-in with FIDO only (this is the passwordless option) OR sign-in with password + FIDO (this is when using password and using FIDO as second factor).
 
-Based on the selected option, signIn will make a call to authentication the user with Cognito. Authentication flows that utilize FIDO will be sent to Cognito as CUSTOM_AUTH flows, this will trigger Define Auth Challenge and process the authentication with custom challenge.
+Based on the selected option, `signIn()` will make a call to authentication the user with Cognito. Authentication flows that utilize FIDO will be sent to Cognito as CUSTOM_AUTH flows, this will trigger Define Auth Challenge and process the authentication with custom challenge.
 
-FIDO challenge will be triggered when client receives a customChallenge response in the authCallBack function, this will use the challenge and credential-id returned in custom challenge to `navigator.credentials.get browser` API which will ask the user to use the authenticator to signId. After successfully activating the authenticator, response is sent to cognito using `cognitoUser.sendCustomChallengeAnswer` API 
+On client-side, FIDO challenge will be triggered when client receives a `customChallenge` response in the `authCallBack` function, this will use the challenge and credential-id returned in custom challenge to call `navigator.credentials.get browser` API which will ask the user to use the authenticator to sign-in. Authenticator will then validate inputs (like relying party, credential-id ...etc. ) and after validation, authenticator response is sent to cognito using `cognitoUser.sendCustomChallengeAnswer` API and will be verified in Verify Auth Challenge lambda trigger.
 
 ## Lambda triggers
 The cloudformation template provided in this repo will deploy three lambda triggers to implement custom authentication flow.
