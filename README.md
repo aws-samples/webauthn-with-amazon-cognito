@@ -91,10 +91,10 @@ Based on the selected option, `signIn()` will make a call to authentication the 
 On client-side, FIDO challenge will be triggered when client receives a `customChallenge` response in the `authCallBack` function, this will use the challenge and credential-id returned in custom challenge to call `navigator.credentials.get` browser API which will ask the user to use the authenticator to sign-in. Authenticator will then validate inputs (like relying party, credential-id ...etc. ) and after validation, authenticator response is sent to cognito using `cognitoUser.sendCustomChallengeAnswer` API and will be verified in Verify Auth Challenge lambda trigger.
 
 ## Lambda triggers
-The cloudformation template provided in this repo will deploy three lambda triggers to implement custom authentication flow.
+The cloudformation template aws/UserPoolTemplate.yaml will deploy three lambda triggers to implement custom authentication flow.
 
 ###### Define Auth Challenge
-This lamda function is triggered when authentication flow is CUSTOM_AUTH to evaluate the authentication progress and decide what is the next step. For reference, the code of this lambda trigger is under aws/DefineAuthChallenge.js
+This lamda function is triggered when authentication flow is CUSTOM_AUTH to evaluate the authentication progress and decide what is the next step. For reference, the code for this lambda trigger is under aws/DefineAuthChallenge.js
 
 Define auth challenge will go through the logic below to decide next challenge:
 
@@ -113,9 +113,9 @@ Define auth challenge will go through the logic below to decide next challenge:
 This lambda function is triggered when the next step (set from define auth challenge) is CUSTOM_CHALLENGE. For reference, the code of this lambda trigger is under aws/CreateAuthChallenge.js
 
 This function will do three things:
-1- extract credential id from user's profile (this is the credential-id created by authenticator during registration step)
+1- extract credential-id from user's profile (this is the credential-id created by authenticator during registration step)
 2- create random string to be used as a chanllenge
-3- return credential-id and challenge string to client
+3- return credential-id and challenge string to client as custom challenge
 
 ###### Verify Auth Challenge
 This lambda will be triggered when challenge response is passed on from client to Cognito service. challenge response includes the response generated from authenticator device, this response will be parsed and validated using the stored paublic-key in user's profile. For reference, the code of this lambda trigger is under aws/DefineAuthChallenge.js
