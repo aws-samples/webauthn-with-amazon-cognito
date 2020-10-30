@@ -79,16 +79,16 @@ The dictionary structure of CreateCredentialOptions object could include paramet
      attestation: ('none'|'indirect'|'direct')
  }
 ```
-After creating credentials, the createCredential will parse response from authenticator to extract credential-id and public-key then it will call signUp function to start the signUp process with Cognito and will store the public-key and credential-id as custom attribute in cognito.
+After creating credentials, `createCredential` function will parse response from authenticator to extract credential-id and public-key then it will call signUp function to start the signUp process with Cognito and will store the public-key and credential-id as custom attribute in cognito.
 
 ## User authentication
 This demo application includes multiple scenarios for demonestration and education purposes.
 
-Authentication starts by calling `signIn()` function in webauthn-client.js. This function will evaluate which sign-in option was chosen; e.g. sign-in with password only (for example for account recovery when device is lost), sign-in with FIDO only (this is the passwordless option) OR sign-in with password + FIDO (this is when using password and using FIDO as second factor).
+Authentication starts by calling `signIn()` function in webauthn-client.js. This function will evaluate which sign-in option was chosen; e.g. sign-in with password only (for example to sign in with temp password for account recovery if authenticator device is lost), sign-in with FIDO only (this is the passwordless option) OR sign-in with password + FIDO (this is when using password as primary factor and using FIDO as second factor).
 
 Based on the selected option, `signIn()` will make a call to authentication the user with Cognito. Authentication flows that utilize FIDO will be sent to Cognito as CUSTOM_AUTH flows, this will trigger Define Auth Challenge and process the authentication with custom challenge.
 
-On client-side, FIDO challenge will be triggered when client receives a `customChallenge` response in the `authCallBack` function, this will use the challenge and credential-id returned in custom challenge to call `navigator.credentials.get` browser API which will ask the user to use the authenticator to sign-in. Authenticator will then validate inputs (like relying party, credential-id ...etc. ) and after validation, authenticator response is sent to cognito using `cognitoUser.sendCustomChallengeAnswer` API and will be verified in Verify Auth Challenge lambda trigger.
+On client-side, FIDO challenge will be triggered when client receives a `customChallenge` response in the `authCallBack` function, this will use the challenge and credential-id returned in custom challenge to call `navigator.credentials.get` browser API which will ask the user to use the authenticator to sign-in. Authenticator will then validate inputs (relying party, credential-id ...etc. ) and after validation, authenticator response is sent to cognito using `cognitoUser.sendCustomChallengeAnswer` API and will be verified in Verify Auth Challenge lambda trigger.
 
 ## Lambda triggers
 The cloudformation template aws/UserPoolTemplate.yaml will deploy three lambda triggers to implement custom authentication flow.
