@@ -47,9 +47,9 @@ Here is a quick demo of deploying and running this project in a fresh Cloud9 env
 ## User registration
 Registration starts by calling createCredential function in webauthn-client.js. This function will construct credentials options object and use it to create credentials with an available authenticator. 
 
-Creating credentials will use `navigator.credentials.create` browser API, this API takes credentialOptions object as input and this object contains information about the relying party, the user and some flags to indicate which authenticators are allowed and whether user verification is required or not. In this demo, credentialOptions object is created server side using `createCredRequest` in libs/authn.js
+Creating credentials will use `navigator.credentials.create` browser API, this API takes createCredentialOptions object as input and this object contains parameters about the relying party, the user and some flags to indicate which authenticators are allowed and whether user verification is required or not. In this demo, credentialOptions object is created server side using `createCredRequest` in libs/authn.js
 
-The full structure of credentialOptions object is as below and not all fields are required:
+The dictionary structure of CreateCredentialOptions object could include parameters as below (note that not all parameters are required and this is an extension point that can be extended in the future to support additional parameters):
 ```javascript
  {
      rp: {
