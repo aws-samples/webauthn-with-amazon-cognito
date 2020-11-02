@@ -45,6 +45,9 @@
           var challenge = credOptions.challenge;
           credOptions.user.id = base64url.decode(credOptions.user.id);
           credOptions.challenge = base64url.decode(credOptions.challenge);
+          if (/localhost/.test(credOptions.rp.id)) {
+            credOptions.rp.id = 'localhost'
+          }
           
           //----------create credentials using available authenticator
           const cred = await navigator.credentials.create({
