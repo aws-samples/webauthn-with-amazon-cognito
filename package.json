@@ -16,6 +16,6 @@
     "helmet": "^3.23.3"
   },
   "engines": {
-    "node": "8.x"
+    "node": "12.x"
   }
 }
