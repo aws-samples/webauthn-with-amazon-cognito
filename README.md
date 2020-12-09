@@ -15,11 +15,11 @@ $ cd webauthn-with-amazon-cognito
 ```
 ###### Create Cognito resaources and lambda triggers
 ```sh
-$ aws cloudformation create-stack --stack-name webauthn-cognito --template-body file://aws/UserPoolTemplate.yaml --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM
+$ aws --region us-west-2 cloudformation create-stack --stack-name webauthn-cognito --template-body file://aws/UserPoolTemplate.yaml --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM
 ```
 Wait for the stack to be created successfully and then get the user-pool-id and app-client-id from outputs section. you can do this from CloudFromation console or using describe-stacks command
 ```sh
-$ aws cloudformation describe-stacks --stack-name webauthn-cognito 
+$ aws --region us-west-2 cloudformation describe-stacks --stack-name webauthn-cognito 
 ```
 Edit the file public/webauthn-client.js to use the new user-pool that you just created.
 ```javascript
