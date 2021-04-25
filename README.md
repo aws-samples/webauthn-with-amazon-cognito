@@ -13,7 +13,7 @@ This project is a demonstration of how to implement FIDO-based authentication wi
 $ git clone https://github.com/aws-samples/webauthn-with-amazon-cognito.git
 $ cd webauthn-with-amazon-cognito
 ```
-###### Create Cognito resaources and lambda triggers
+###### Create Cognito resources and lambda triggers
 ```sh
 $ aws --region us-west-2 cloudformation create-stack --stack-name webauthn-cognito --template-body file://aws/UserPoolTemplate.yaml --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM
 ```
