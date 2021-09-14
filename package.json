@@ -9,7 +9,7 @@
   "dependencies": {
     "amazon-cognito-identity-js": "^4.3.2",
     "cookie-parser": "^1.4.4",
-    "dotenv": "^8.2.0",
+    "dotenv": "^10.0.0",
     "express": "^4.16.4",
     "fido2-lib": "agektmr/fido2-lib#android-compatible3",
     "hbs": "^4.0.4",
