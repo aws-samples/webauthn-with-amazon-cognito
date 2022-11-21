@@ -1,10 +1,10 @@
 /**
  * 1- if user doesn't exist, throw exception
  * 2- if CUSTOM_CHALLENGE answer is correct, authentication successful
- * 3- if PASSWORD_VERIFIER challenge answer is correct, return custom challeneg (3,4 will be appliable if password+fido is selected)
+ * 3- if PASSWORD_VERIFIER challenge answer is correct, return custom challenge (3,4 will be appliable if password+fido is selected)
  * 4- if challenge name is SRP_A, return PASSWORD_VERIFIER challenge (3,4 will be appliable if password+fido is selected)
  * 5- if 5 attempts with no correct answer, fail authentication
- * 6- default is to respond with CUSTOM_CHALLENEG --> password-less authentication
+ * 6- default is to respond with CUSTOM_CHALLENGE --> password-less authentication
  * */
 
 exports.handler = (event, context, callback) => {
