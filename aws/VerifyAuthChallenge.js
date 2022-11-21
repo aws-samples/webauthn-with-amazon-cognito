@@ -7,11 +7,11 @@ exports.handler = async (event) => {
     const challenge = event.request.privateChallengeParameters.challenge;
     const credId = event.request.privateChallengeParameters.credId;
     
-    //--------publickey information
+    //--------public-key information
     var publicKeyCred = event.request.userAttributes["custom:publicKeyCred"];
     var publicKeyCredJSON = JSON.parse(Buffer.from(publicKeyCred, 'base64').toString('ascii'));
     
-    //-------get challenge ansower
+    //-------get challenge answer
     const challengeAnswerJSON = JSON.parse(event.request.challengeAnswer);
     
     const verificationResult = await validateAssertionSignature(publicKeyCredJSON, challengeAnswerJSON);

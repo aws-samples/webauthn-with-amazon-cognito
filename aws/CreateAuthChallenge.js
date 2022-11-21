@@ -10,7 +10,7 @@ exports.handler = async (event) => {
     const challenge = crypto.randomBytes(64).toString('hex');
     
     event.response.publicChallengeParameters = {
-        credId: JSON.parse(publicKeyCredJSON).id, //credetnial id
+        credId: JSON.parse(publicKeyCredJSON).id, //credential id
         challenge: challenge
     };
     

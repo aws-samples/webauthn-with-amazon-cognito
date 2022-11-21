@@ -209,7 +209,7 @@
          ]
       }
       
-      //get sign in credentials from authenticator
+      //get sign-in credentials from authenticator
       const cred = await navigator.credentials.get({
         publicKey: signinOptions
       });
