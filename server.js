@@ -14,6 +14,7 @@ app.use(helmet({
             'script-src': ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net https://ajax.googleapis.com'],
             'script-src-attr': ["'self'", "'unsafe-inline'"],
             'style-src': ["'self'", "'unsafe-inline'", 'https://*.googleapis.com https://www.w3schools.com'],
+            'connect-src': ["'self'", 'https://cognito-idp.us-west-2.amazonaws.com/' ],
             'img-src': ['https:', 'data:'],
         },
     },
