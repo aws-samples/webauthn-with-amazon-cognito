@@ -7,7 +7,19 @@ const hbs = require('hbs');
 const authn = require('./libs/authn');
 const helmet = require('helmet');
 const app = express();
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            'script-src': ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net https://ajax.googleapis.com'],
+            'script-src-attr': ["'self'", "'unsafe-inline'"],
+            'style-src': ["'self'", "'unsafe-inline'", 'https://*.googleapis.com https://www.w3schools.com'],
+            'connect-src': ["'self'", 'https://cognito-idp.us-west-2.amazonaws.com/' ],
+            'img-src': ['https:', 'data:'],
+        },
+    },
+}));
+app.use(helmet.crossOriginEmbedderPolicy({ policy: "credentialless" }));
 
 
 app.set('view engine', 'html');
