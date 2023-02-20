@@ -19,6 +19,7 @@ app.use(helmet({
         },
     },
 }));
+app.use(helmet.crossOriginEmbedderPolicy({ policy: "credentialless" }));
 
 
 app.set('view engine', 'html');
