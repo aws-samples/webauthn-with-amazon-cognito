@@ -13,7 +13,7 @@
     "express": "^4.18.1",
     "fido2-lib": "agektmr/fido2-lib#android-compatible3",
     "hbs": "^4.2.0",
-    "helmet": "^5.1.1"
+    "helmet": "^7.0.0"
   },
   "engines": {
     "node": "12.x"
