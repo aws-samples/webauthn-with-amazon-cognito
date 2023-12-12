@@ -29,6 +29,9 @@ app.use((req, res, next) => {
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", (req, res) => {
+  res.set("Content-Security-Policy", "script-src 'self'  https://ajax.googleapis.com https://cdn.jsdelivr.net https://www.w3schools.com 'unsafe-inline';");
+  res.set("Cross-Origin-Embedder-Policy", "require-corp");
+  res.set("Cross-Origin-Opener-Policy", "same-origin");
   res.render("webauthn.html");
 });
 
