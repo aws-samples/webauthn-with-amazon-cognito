@@ -44,7 +44,7 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}-DefineAuthChallenge
       CodeUri: s3://webauthn-with-amazon-cognito/DefineAuthChallenge
       Handler: index.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs18.x
       MemorySize: 1024
       Timeout: 30
       Tracing: Active
@@ -62,7 +62,7 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}-CreateAuthChallenge
       CodeUri: s3://webauthn-with-amazon-cognito/CreateAuthChallenge
       Handler: index.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs18.x
       MemorySize: 1024
       Timeout: 30
       Tracing: Active
@@ -80,7 +80,7 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}-VerifyAuthChallenge
       CodeUri: s3://webauthn-with-amazon-cognito/VerifyAuthChallenge
       Handler: index.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs18.x
       MemorySize: 1024
       Timeout: 30
       Tracing: Active
