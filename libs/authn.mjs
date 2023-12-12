@@ -13,21 +13,20 @@
  * permissions and limitations under the License.
  */
 
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const { Fido2Lib } = require('fido2-lib');
-const { coerceToBase64Url, coerceToArrayBuffer } = require('fido2-lib/lib/utils');
+import { Fido2Lib } from "fido2-lib";
+import { coerceToBase64Url, coerceToArrayBuffer } from "fido2-lib/lib/utils.js";
 
 router.use(express.json());
 
 const f2l = new Fido2Lib({
-    timeout: 30*1000*60,
-    //rpId: process.env.HOSTNAME,
-    rpName: "WebAuthn With Cognito",
-    challengeSize: 32,
-    cryptoParams: [-7]
+  timeout: 30 * 1000 * 60,
+  //rpId: process.env.HOSTNAME,
+  rpName: "WebAuthn With Cognito",
+  challengeSize: 32,
+  cryptoParams: [-7],
 });
-
 
 /**
  * Respond with required information to call navigator.credential.create()
@@ -60,25 +59,24 @@ const f2l = new Fido2Lib({
      attestation: ('none'|'indirect'|'direct')
  * }
  **/
-router.post('/createCredRequest', async (req, res) => {
-  f2l.config.rpId = `${req.get('host')}`;
- 
+router.post("/createCredRequest", async (req, res) => {
+  f2l.config.rpId = `${req.get("host")}`;
+
   try {
-    
     const response = await f2l.attestationOptions();
     response.user = {
       displayName: req.body.name,
       id: req.body.username,
-      name: req.body.username
+      name: req.body.username,
     };
-    response.challenge = coerceToBase64Url(response.challenge, 'challenge');
-    
+    response.challenge = coerceToBase64Url(response.challenge, "challenge");
+
     response.excludeCredentials = [];
     response.pubKeyCredParams = [];
     // const params = [-7, -35, -36, -257, -258, -259, -37, -38, -39, -8];
     const params = [-7, -257];
     for (let param of params) {
-      response.pubKeyCredParams.push({type:'public-key', alg: param});
+      response.pubKeyCredParams.push({ type: "public-key", alg: param });
     }
     const as = {}; // authenticatorSelection
     const aa = req.body.authenticatorSelection.authenticatorAttachment;
@@ -87,22 +85,22 @@ router.post('/createCredRequest', async (req, res) => {
     const cp = req.body.attestation; // attestationConveyancePreference
     let asFlag = false;
 
-    if (aa && (aa == 'platform' || aa == 'cross-platform')) {
+    if (aa && (aa == "platform" || aa == "cross-platform")) {
       asFlag = true;
       as.authenticatorAttachment = aa;
     }
-    if (rr && typeof rr == 'boolean') {
+    if (rr && typeof rr == "boolean") {
       asFlag = true;
       as.requireResidentKey = rr;
     }
-    if (uv && (uv == 'required' || uv == 'preferred' || uv == 'discouraged')) {
+    if (uv && (uv == "required" || uv == "preferred" || uv == "discouraged")) {
       asFlag = true;
       as.userVerification = uv;
     }
     if (asFlag) {
       response.authenticatorSelection = as;
     }
-    if (cp && (cp == 'none' || cp == 'indirect' || cp == 'direct')) {
+    if (cp && (cp == "none" || cp == "indirect" || cp == "direct")) {
       response.attestation = cp;
     }
 
@@ -111,7 +109,6 @@ router.post('/createCredRequest', async (req, res) => {
     res.status(400).send({ error: e });
   }
 });
-
 
 /**
  * Register user credential.
@@ -128,31 +125,43 @@ router.post('/createCredRequest', async (req, res) => {
      }
  * }
  **/
-router.post('/parseCredResponse', async (req, res) => {
-  f2l.config.rpId = `${req.get('host')}`;
+router.post("/parseCredResponse", async (req, res) => {
+  f2l.config.rpId = `${req.get("host")}`;
 
   try {
     const clientAttestationResponse = { response: {} };
-    clientAttestationResponse.rawId = coerceToArrayBuffer(req.body.rawId, "rawId");
-    clientAttestationResponse.response.clientDataJSON = coerceToArrayBuffer(req.body.response.clientDataJSON, "clientDataJSON");
-    clientAttestationResponse.response.attestationObject = coerceToArrayBuffer(req.body.response.attestationObject, "attestationObject");
-    
-    let origin = `https://${req.get('host')}`;
+    clientAttestationResponse.rawId = coerceToArrayBuffer(
+      req.body.rawId,
+      "rawId"
+    );
+    clientAttestationResponse.response.clientDataJSON = coerceToArrayBuffer(
+      req.body.response.clientDataJSON,
+      "clientDataJSON"
+    );
+    clientAttestationResponse.response.attestationObject = coerceToArrayBuffer(
+      req.body.response.attestationObject,
+      "attestationObject"
+    );
+
+    let origin = `https://${req.get("host")}`;
 
     const attestationExpectations = {
       challenge: req.body.challenge,
       origin: origin,
-      factor: "either"
+      factor: "either",
     };
 
-    const regResult = await f2l.attestationResult(clientAttestationResponse, attestationExpectations);
+    const regResult = await f2l.attestationResult(
+      clientAttestationResponse,
+      attestationExpectations
+    );
 
     const credential = {
-      credId: coerceToBase64Url(regResult.authnrData.get("credId"), 'credId'),
+      credId: coerceToBase64Url(regResult.authnrData.get("credId"), "credId"),
       publicKey: regResult.authnrData.get("credentialPublicKeyPem"),
-      aaguid: coerceToBase64Url(regResult.authnrData.get("aaguid"), 'aaguid'),
+      aaguid: coerceToBase64Url(regResult.authnrData.get("aaguid"), "aaguid"),
       prevCounter: regResult.authnrData.get("counter"),
-      flags: regResult.authnrData.get("flags")
+      flags: regResult.authnrData.get("flags"),
     };
 
     // Respond with user info
@@ -162,5 +171,5 @@ router.post('/parseCredResponse', async (req, res) => {
   }
 });
 
-
-module.exports = router;
+// module.exports = router;
+export default router;
